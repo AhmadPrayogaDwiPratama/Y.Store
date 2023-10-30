@@ -32,7 +32,7 @@ export const BlogList = [
     image:
       'https://images.wallpapersden.com/image/download/mobile-legends-bang-bang-gaming-2023_bW1ubmmUmZqaraWkpJRmbmdlrWZlbWY.jpg',
     createdAt: 'Oct 14, 2023',
-    totalComments: 89,
+  
   },
   {
     id: 2,
@@ -41,7 +41,7 @@ export const BlogList = [
     image:
       'https://tse2.mm.bing.net/th?id=OIP.YR2Byrm85tfU19NXBLWM0wHaEK&pid=Api&P=0&h=180',
     createdAt: 'Oct 04, 2023',
-    totalComments: 89,
+
   },
   {
     id: 3,
@@ -49,7 +49,7 @@ export const BlogList = [
     category: 'FPS',
     image: 'https://i.ytimg.com/vi/Q2CHzEjYT4k/maxresdefault.jpg',
     createdAt: 'Oct 10, 2023',
-    totalComments: 89,
+
   },
   {
     id: 4,
@@ -58,7 +58,7 @@ export const BlogList = [
     image:
       'https://tse3.mm.bing.net/th?id=OIP.2siP4ftPdzciIeAAnS0uRwHaEK&pid=Api&P=0&h=180',
     createdAt: 'Sep 11, 2023',
-    totalComments: 89,
+
   },
   {
     id: 5,
@@ -67,7 +67,7 @@ export const BlogList = [
     image:
       'https://tse1.mm.bing.net/th?id=OIP.MoE58Nv_KzLxVIbsdvwRMgHaDl&pid=Api&P=0&h=180',
     createdAt: 'Aug 10, 2023',
-    totalComments: 89,
+
   },
 ];
 
@@ -134,4 +134,60 @@ export const cardList = [
       'https://asset.vg247.com/tower-of-fantasy.jpg/BROK/thumbnail/1600x900/format/jpg/quality/80/tower-of-fantasy.jpg',
     title: 'TOF',
   }
+];
+
+export const ProfileData = {
+  profilePict:
+    'https://tse1.mm.bing.net/th?id=OIP.Lui6lVdzvecYDAJ_ahUOawAAAA&pid=Api&P=0&h=180',
+  name: 'Prayoga',
+  createdAt: '18 Oct, 2023',
+  Dompet: 3000000, 
+
+};
+
+export const ItemKeranjang = [
+  {
+    id: 1,
+    title: 'Get Legends Skin Now',
+    category: 'Moba',
+    image:
+      'https://images.wallpapersden.com/image/download/mobile-legends-bang-bang-gaming-2023_bW1ubmmUmZqaraWkpJRmbmdlrWZlbWY.jpg',
+    createdAt: 'Oct 14, 2023',
+  
+  },
+  {
+    id: 2,
+    title: 'Explore Your Journey Go Top Up On YStore',
+    category: 'mmorpg',
+    image:
+      'https://tse2.mm.bing.net/th?id=OIP.YR2Byrm85tfU19NXBLWM0wHaEK&pid=Api&P=0&h=180',
+    createdAt: 'Oct 04, 2023',
+
+  },
+  {
+    id: 3,
+    title: 'New Bundle Is Coming GAIA 2.0 Go Top Up Now',
+    category: 'FPS',
+    image: 'https://i.ytimg.com/vi/Q2CHzEjYT4k/maxresdefault.jpg',
+    createdAt: 'Oct 10, 2023',
+
+  },
+  {
+    id: 4,
+    title: 'Lin Is Coming',
+    category: 'Adventure',
+    image:
+      'https://tse3.mm.bing.net/th?id=OIP.2siP4ftPdzciIeAAnS0uRwHaEK&pid=Api&P=0&h=180',
+    createdAt: 'Sep 11, 2023',
+
+  },
+  {
+    id: 5,
+    title: 'U want to be Number 1 ? Upgrade Ur Equipment',
+    category: 'RPG',
+    image:
+      'https://tse1.mm.bing.net/th?id=OIP.MoE58Nv_KzLxVIbsdvwRMgHaDl&pid=Api&P=0&h=180',
+    createdAt: 'Aug 10, 2023',
+
+  },
 ];
