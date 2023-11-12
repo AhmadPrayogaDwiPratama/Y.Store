@@ -123,7 +123,7 @@ const ListBlog = () => {
           </Text>
         </View>
         <View style={itemVertical.listCard}>
-          <View style={itemVertical.cardItem}>
+          <TouchableOpacity style={itemVertical.cardItem}>
             <Image
               style={itemVertical.cardImage}
               source={{
@@ -135,7 +135,7 @@ const ListBlog = () => {
                 Mobile Legends
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
         <View>
           <Text
