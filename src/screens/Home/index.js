@@ -2,9 +2,8 @@
 // import {ScrollView, StyleSheet,  Text, View, Image, ImageBackground} from 'react-native';
 // import {Notification, Receipt21, Clock, Message} from 'iconsax-react-native';
 // import { fontType, colors } from './src/theme';
-import React, {useState} from 'react';
-import {ScrollView,StyleSheet,Text, View,Image,FlatList, TouchableOpacity,
-} from 'react-native';
+import {StyleSheet, Text, View, ScrollView, FlatList, Animated,TouchableOpacity,Image} from 'react-native';
+import React, {useRef,useState} from 'react';
 import {Element3, Receipt21} from 'iconsax-react-native';
 
 import {BlogList, CategoryList,cardList} from '../../../data';
@@ -101,15 +100,21 @@ const category = StyleSheet.create({
     color: colors.grey(),
   },
 });
-
+const scrollY = useRef(new Animated.Value(0)).current;
+const diffClampY = Animated.diffClamp(scrollY, 0, 142);
+const recentY = diffClampY.interpolate({
+    inputRange: [0, 142],
+    outputRange: [0, -142],
+    extrapolate: 'clamp',
+  });
 const ListBlog = () => {
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.listBlog}>
+    <Animated.ScrollView style={styles.header[{transform: [{translateY: recentY}]}]}>
+      <Animated.View style={styles.listBlog}>
         <View style={styles.listCard}></View>
-      </View>
+      </Animated.View>
 
-      <View style={styles.listBlog}>
+      <Animated.View style={styles.listBlog}>
         <ListHorizontal data={BlogList} />
         <View>
           <Text
@@ -149,8 +154,8 @@ const ListBlog = () => {
             <ItemSmall item={item} key={index} />
           ))}
         </View>
-      </View>
-    </ScrollView>
+      </Animated.View>
+    </Animated.ScrollView>
   );
 };
 

@@ -1,10 +1,18 @@
-import {StyleSheet, Text, View, ScrollView, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import {StyleSheet, Text, View, TouchableOpacity,Animated,image} from 'react-native';
+import React, {useState,useRef} from 'react';
 import {ArrowLeft, Like1, Receipt21, Message, Share, More} from 'iconsax-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {BlogList, cardList} from '../../../data';
 import FastImage from 'react-native-fast-image';
 import { fontType, colors } from '../../theme';
+
+
+const scrollY = useRef(new Animated.Value(0)).current;
+const diffClampY = Animated.diffClamp(scrollY, 0, 52);
+  const headerY = diffClampY.interpolate({
+    inputRange: [0, 52],
+    outputRange: [0, -52],
+  });
 const formatNumber = number => {
   if (number >= 1000000000) {
     return (number / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
@@ -39,7 +47,7 @@ const DetailBlog = ({route}) => {
   };
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <Animated.View style={[styles.header, {transform:[{translateY:headerY}]}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft
             color={colors.grey(0.6)}
@@ -55,9 +63,13 @@ const DetailBlog = ({route}) => {
             style={{transform: [{rotate: '90deg'}]}}
           />
         </View>
-      </View>
-      <ScrollView
+      </Animated.View>
+      <Animated.ScrollView
         showsVerticalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{nativeEvent: {contentOffset: {y: scrollY}}}],
+          {useNativeDriver: true},
+        )}
         contentContainerStyle={{
           paddingHorizontal: 24,
           paddingTop: 62,
@@ -83,7 +95,7 @@ const DetailBlog = ({route}) => {
         </View>
         <Text style={styles.title}>{selectedBlog.title}</Text>
         <Text style={styles.content}>{selectedBlog.content}</Text>
-      </ScrollView>
+      </Animated.ScrollView>
       {/* <View style={styles.bottomBar}>
         <View style={{flexDirection:'row', gap:5, alignItems:'center'}}>
           <TouchableOpacity onPress={() => toggleIcon('liked')}>

@@ -8,7 +8,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 const navigation = useNavigation();
 const ItemSmall = ({item}) => {
   return (
-    <TouchableOpacity style={itemVertical.cardItem} onPress={() => navigation.navigate('BlogDetail', {blogId: item.id})}>
+    <TouchableOpacity style={itemVertical.cardItem} onPress={() => navigation.navigate('DetailBlog', {blogId: item.id})}>
      <FastImage
         style={itemVertical.cardImage}
         source={{
