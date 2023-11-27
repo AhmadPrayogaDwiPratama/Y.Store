@@ -2,10 +2,10 @@
 // import {ScrollView, StyleSheet,  Text, View, Image, ImageBackground} from 'react-native';
 // import {Notification, Receipt21, Clock, Message} from 'iconsax-react-native';
 // import { fontType, colors } from './src/theme';
-import {StyleSheet, Text, View, ScrollView, FlatList, Animated,TouchableOpacity,Image} from 'react-native';
+import {StyleSheet, Text, View, ScrollView, FlatList,Animated,TouchableOpacity,Image,TouchableWithoutFeedback} from 'react-native';
 import React, {useRef,useState} from 'react';
-import {Element3, Receipt21} from 'iconsax-react-native';
-
+import {SearchNormal1,Edit} from 'iconsax-react-native';
+import { useNavigation } from "@react-navigation/native";
 import {BlogList, CategoryList,cardList} from '../../../data';
 import { fontType, colors } from '../../theme';
 import { ListHorizontal, ItemSmall } from '../../components';
@@ -18,7 +18,7 @@ const ItemCategory = ({item, onPress, color}) => {
     </TouchableOpacity>
   );
 };
-
+const navigation = useNavigation();
 const FlatListCategory = () => {
   const [selected, setSelected] = useState(1);
   const renderItem = ({item}) => {
@@ -110,10 +110,15 @@ const recentY = diffClampY.interpolate({
 const ListBlog = () => {
   return (
     <Animated.ScrollView style={styles.header[{transform: [{translateY: recentY}]}]}>
+    <TouchableWithoutFeedback onPress={() => navigation.navigate("SearchPage")}>
+    <View style={itemVertical.bar}>
+    <SearchNormal1 size={20} color={colors.white(1.0)} variant="Linear" />
+   <Text style={itemVertical.placeholder}>Search</Text>
+   </View>
+   </TouchableWithoutFeedback>
       <Animated.View style={styles.listBlog}>
         <View style={styles.listCard}></View>
       </Animated.View>
-
       <Animated.View style={styles.listBlog}>
         <ListHorizontal data={BlogList} />
         <View>
@@ -155,7 +160,13 @@ const ListBlog = () => {
           ))}
         </View>
       </Animated.View>
+      <TouchableOpacity
+  style={itemVertical.floatingButton}
+  onPress={() => navigation.navigate("TopUp")}>
+  <Text style={itemVertical.placeholder}>Top Up</Text>
+</TouchableOpacity>
     </Animated.ScrollView>
+    
   );
 };
 
@@ -203,6 +214,38 @@ const itemVertical = StyleSheet.create({
     paddingLeft: 1,
     flex: 1,
     paddingVertical: 5,
+  },
+  bar: {
+    flexDirection: 'row',
+    padding: 10,
+    gap: 10,
+    alignItems: 'center',
+    backgroundColor: colors.grey(0.2),
+    borderRadius: 10,
+    flex: 1,
+  },
+  placeholder: {
+    fontSize: 14,
+    fontFamily: fontType['Pjs-Medium'],
+    color: colors.white(0.5),
+    lineHeight: 18,
+  },
+  floatingButton: {
+    backgroundColor: colors.blue(),
+    padding: 15,
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    borderRadius: 10,
+    shadowColor: colors.blue(),
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+
+    elevation: 8,
   },
 });
 

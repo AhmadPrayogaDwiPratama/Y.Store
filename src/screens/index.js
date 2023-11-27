@@ -2,4 +2,6 @@ import DetailBlog from "./DetailBlog";
 import Home from "./Home";
 import Keranjang from "./Keranjang";
 import Profile from "./Profile";
-export {Home, Profile,Keranjang,DetailBlog}
+import Search from "./Search";
+import PageTopUp from "./PageTopUp";
+export {Home, Profile,Keranjang,DetailBlog,Search,PageTopUp}

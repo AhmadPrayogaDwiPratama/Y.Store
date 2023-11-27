@@ -10,7 +10,11 @@ import {AlignRight, Element3, Receipt21, Size} from 'iconsax-react-native';
 import {BlogList, CategoryList,ItemKeranjang,cardList} from '../../../data';
 import { fontType, colors } from '../../theme';
 import { ListHorizontal, ItemSmall } from '../../components';
+import { Setting2, Edit } from "iconsax-react-native";
+import { useNavigation } from "@react-navigation/native";
 
+
+const navigation = useNavigation();
 export default function Keranjang() {
   return (
     <View style={styles.container}>

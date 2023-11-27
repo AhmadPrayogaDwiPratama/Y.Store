@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Home, Profile, Keranjang, DetailBlog} from '../screens';
+import {Home, Profile, Keranjang, DetailBlog, PageTopUp, Search} from '../screens';
 import {Home2, LocationDiscover, Receipt21, ProfileCircle} from 'iconsax-react-native'; 
 import { fontType, colors } from '../theme';
 
@@ -61,7 +61,7 @@ function MainApp() {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({focused, color}) => (
-            <Receipt21
+            <ProfileCircle
               color={color}
               variant={focused ? 'Bold' : 'Linear'}
               size={24}
@@ -86,6 +86,26 @@ const Router = () => {
         component={DetailBlog}
         options={{
           headerShown: false, 
+          animationEnabled: true,
+          animationTypeForReplace: 'pop',
+          gestureEnabled: true,
+          gestureDirection : 'horizontal',
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="SearchPage"
+        component={Search}
+        options={{
+          headerShown: false,
+          presentation: 'transparentModal',
+        }}
+      />
+<Stack.Screen
+        name="TopUp"
+        component={PageTopUp}
+        options={{
+          headerShown: false,
           animationEnabled: true,
           animationTypeForReplace: 'pop',
           gestureEnabled: true,
