@@ -287,3 +287,4 @@ const itemHorizontal = StyleSheet.create({
     borderRadius: 5,
   },
 });
+

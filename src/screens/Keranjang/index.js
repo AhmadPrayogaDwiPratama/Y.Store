@@ -2,19 +2,30 @@
 // import {ScrollView, StyleSheet,  Text, View, Image, ImageBackground} from 'react-native';
 // import {Notification, Receipt21, Clock, Message} from 'iconsax-react-native';
 // import { fontType, colors } from './src/theme';
-import React, {useState} from 'react';
-import {ScrollView,StyleSheet,Text, View,Image,FlatList, TouchableOpacity,
-} from 'react-native';
-import {AlignRight, Element3, Receipt21, Size} from 'iconsax-react-native';
+// import React, {useState} from 'react';
+// import {ScrollView,StyleSheet,Text, View,Image,FlatList, TouchableOpacity,
+// } from 'react-native';
+// import {AlignRight, Element3, Receipt21, Size} from 'iconsax-react-native';
 
-import {BlogList, CategoryList,ItemKeranjang,cardList} from '../../../data';
-import { fontType, colors } from '../../theme';
-import { ListHorizontal, ItemSmall } from '../../components';
-import { Setting2, Edit } from "iconsax-react-native";
-import { useNavigation } from "@react-navigation/native";
+// import {BlogList, CategoryList,ItemKeranjang,cardList} from '../../../data';
+// import { fontType, colors } from '../../theme';
+// import { ListHorizontal, ItemSmall } from '../../components';
+// import { Setting2, Edit } from "iconsax-react-native";
+// import { useNavigation } from "@react-navigation/native";
+
+import {ScrollView, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, RefreshControl,Image} from 'react-native';
+import {Edit, Setting2} from 'iconsax-react-native';
+import React, { useState, useCallback} from 'react';
+import FastImage from 'react-native-fast-image';
+import {ItemKeranjang, ProfileData} from '../../../data';
+import {ItemSmall} from '../../components';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {fontType, colors} from '../../theme';
+import {formatNumber} from '../../utils/formatNumber';
+import axios from 'axios';
 
 
-const navigation = useNavigation();
+
 export default function Keranjang() {
   return (
     <View style={styles.container}>
@@ -105,73 +116,212 @@ const category = StyleSheet.create({
   },
 });
 
+
 const ListBlog = () => {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [dataTopUp, setdataTopUp] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const getdataTopUp = async () => {
+    try {
+      const response = await axios.get(
+        'https://656b13eadac3630cf727a5af.mockapi.io/YStore/keranjang',
+      );
+      setdataTopUp(response.data);
+      setLoading(false)
+    } catch (error) {
+        console.error(error);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      getdataTopUp()
+      setRefreshing(false);
+    }, 1500);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      getdataTopUp();
+    }, [])
+  );
   return (
-        <View>
-          <Text
-            style={{
-              ...styles.title,
-              marginLeft: 10,
-              marginTop: 10,
-              color: colors.black(),
-            }}>
-            Pilih 
-          </Text>
-        <View style = {styles.imageBanner2}>
-        <Image
-              style={itemVertical.cardImage}
-              source={{
-                uri:  'https://i.ytimg.com/vi/Q2CHzEjYT4k/maxresdefault.jpg' 
-            }}
-            />
-              <Text
-            style={{
-              marginLeft: 120,
-              bottom :70,
-              fontSize : 25,
-              color: colors.black(),
-            }}>
-            125 Points
-          </Text>
-          <Text
-            style={{
-              marginLeft: 123,
-              bottom :70,
-              fontSize : 15,
-              color: colors.black(),
-            }}>
-            Valorant
-          </Text>
-                  <Text style={itemHorizontal.cardText}>
-                  Riot iD
-                  </Text>
-
-                  <Text style={itemHorizontal.cardTitle}>
-                  PRX Pr1me#Raizl
-                  </Text>
-
-                  <Text style={itemHorizontal.cardTitle}>
-                  Catatan Untuk Penjual (Opsional)
-                  </Text>
-
-                  <View style = {styles.imageBanner1}>
-                  </View>    
-
-                  <Text style={itemHorizontal.TextTotal}>
-                Total Pembelian = Rp 15.900
-                  </Text> 
-                  <View style = {styles.imageBanner3}>
-                    <Text style = {{
-                        textAlign : 'center',
-                         fontSize : 25,
-                         color: colors.black(),
-                    }}
-                    >Beli</Text>
-                  </View>         
+    <View style={styles.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          gap: 10,
+          paddingVertical: 20,
+        }} refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+          {/* <View style={{flexDirection: 'row', gap: 20}}>
+            <View style={{alignItems: 'center', gap: 5}}>
+              <Text style={ItemKeranjang.sum}>{ItemKeranjang.blogPosted}</Text>
+            </View>
+        </View> */}
+        <View style={{paddingVertical: 10, gap: 10}}>
+          {loading ? (
+            <ActivityIndicator size={'large'} color={colors.blue()} />
+          ) : (
+            dataTopUp.map((item, index) => <ItemSmall item={item} key={index} />)
+          )}
         </View>
-        </View>
+      </ScrollView>
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate('PageTopUp')}>
+        <Edit color={colors.white()} variant="Linear" size={20} />
+      </TouchableOpacity>
+    </View>
   );
 };
+  // return (
+  //       <View>
+  //         <Text
+  //           style={{
+  //             ...styles.title,
+  //             marginLeft: 10,
+  //             marginTop: 10,
+  //             color: colors.black(),
+  //           }}>
+  //           Pilih 
+  //         </Text>
+  //       <View style = {styles.imageBanner2}>
+  //       <Image
+  //             style={itemVertical.cardImage}
+  //             source={{
+  //               uri:  'https://i.ytimg.com/vi/Q2CHzEjYT4k/maxresdefault.jpg' 
+  //           }}
+  //           />
+  //             <Text
+  //           style={{
+  //             marginLeft: 120,
+  //             bottom :70,
+  //             fontSize : 25,
+  //             color: colors.black(),
+  //           }}>
+  //           125 Points
+  //         </Text>
+  //         <Text
+  //           style={{
+  //             marginLeft: 123,
+  //             bottom :70,
+  //             fontSize : 15,
+  //             color: colors.black(),
+  //           }}>
+  //           Valorant
+  //         </Text>
+  //                 <Text style={itemHorizontal.cardText}>
+  //                 Riot iD
+  //                 </Text>
+
+  //                 <Text style={itemHorizontal.cardTitle}>
+  //                 PRX Pr1me#Raizl
+  //                 </Text>
+
+  //                 <Text style={itemHorizontal.cardTitle}>
+  //                 Catatan Untuk Penjual (Opsional)
+  //                 </Text>
+
+  //                 <View style = {styles.imageBanner1}>
+  //                 </View>    
+
+  //                 <Text style={itemHorizontal.TextTotal}>
+  //               Total Pembelian = Rp 15.900
+  //                 </Text> 
+  //                 <View style = {styles.imageBanner3}>
+  //                   <Text style = {{
+  //                       textAlign : 'center',
+  //                        fontSize : 25,
+  //                        color: colors.black(),
+  //                   }}
+  //                   >Beli</Text>
+  //                 </View>         
+  //       </View>
+  //       </View>
+  // );
+
+  const coba = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.white(),
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+    header: {
+      paddingHorizontal: 24,
+      justifyContent: 'flex-end',
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: 52,
+      elevation: 8,
+      paddingTop: 8,
+      paddingBottom: 4,
+    },
+    title: {
+      fontSize: 20,
+      fontFamily: fontType['Pjs-ExtraBold'],
+      color: colors.black(),
+    },
+    floatingButton: {
+      backgroundColor: colors.blue(),
+      padding: 15,
+      position: 'absolute',
+      bottom: 24,
+      right: 24,
+      borderRadius: 10,
+      shadowColor: colors.blue(),
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 4.65,
+  
+      elevation: 8,
+    },
+  });
+  const profile = StyleSheet.create({
+    pic: {width: 100, height: 100, borderRadius: 15},
+    name: {
+      color: colors.black(),
+      fontSize: 20,
+      fontFamily: fontType['Pjs-ExtraBold'],
+    },
+    info: {
+      fontSize: 12,
+      fontFamily: fontType['Pjs-Regular'],
+      color: colors.grey(),
+    },
+    sum: {
+      fontSize: 16,
+      fontFamily: fontType['Pjs-SemiBold'],
+      color: colors.black(),
+    },
+    tag: {
+      fontSize: 14,
+      fontFamily: fontType['Pjs-Regular'],
+      color: colors.grey(0.5),
+    },
+    buttonEdit: {
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      backgroundColor: colors.grey(0.1),
+      borderRadius: 10,
+    },
+    buttonText: {
+      fontSize: 14,
+      fontFamily: fontType['Pjs-SemiBold'],
+      color: colors.black(),
+    },
+  });
 
 const itemVertical = StyleSheet.create({
   listCard: {

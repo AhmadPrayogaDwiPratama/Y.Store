@@ -6,16 +6,21 @@ import {useNavigation} from '@react-navigation/native';
 import {fontType, colors} from '../theme';
 import {formatDate} from '../utils/formatDate';
 const navigation = useNavigation();
-const ItemSmall = ({item}) => {
+const KeranjangItem = ({item}) => {
   return (
-    <TouchableOpacity style={styles.cardItem} onPress={() => navigation.navigate('DetailBlog', {blogId: item.id})}>
-     <FastImage
+    <TouchableOpacity
+      style={styles.cardItem}
+      onPress={() => navigation.navigate('DetalBlog', {blogId: item.id})}>
+      <FastImage
         style={styles.cardImage}
         source={{
-          uri: item.image,
+          uri: item?.image,
+          headers: {Authorization: 'someAuthToken'},
+          priority: FastImage.priority.high,
         }}
+        resizeMode={FastImage.resizeMode.cover}
       />
-       <View style={styles.cardContent}>
+      <View style={styles.cardContent}>
         <View
           style={{
             flexDirection: 'row',
@@ -25,60 +30,20 @@ const ItemSmall = ({item}) => {
             <Text style={styles.cardCategory}>{item.category?.name}</Text>
             <Text style={styles.cardTitle}>{item?.title}</Text>
           </View>
-          </View>
-          </View>
+          <Receipt21 color={colors.grey(0.6)} variant="Linear" size={20} />
+        </View>
+        <View style={styles.cardInfo}>
+          <Clock size={10} variant="Linear" color={colors.grey(0.6)} />
+          <Text style={styles.cardText}>{formatDate(item?.createdAt)}</Text>
+          <Message size={10} variant="Linear" color={colors.grey(0.6)} />
+          <Text style={styles.cardText}>{item?.totalComments}</Text>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 };
 
-
-export default ItemSmall;
-const styles = StyleSheet.create({
-  listCard: {
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    gap: 15,
-  },
-  cardItem: {
-    backgroundColor: colors.blue(0.03),
-    flexDirection: 'row',
-    borderRadius: 10,
-  },
-  cardCategory: {
-    color: colors.blue(),
-    fontSize: 10,
-    fontFamily: fontType['Pjs-SemiBold'],
-  },
-  cardTitle: {
-    fontSize: 14,
-    fontFamily: fontType['Pjs-Bold'],
-    color: colors.black(),
-  },
-  cardText: {
-    fontSize: 10,
-    fontFamily: fontType['Pjs-Medium'],
-    color: colors.grey(0.6),
-  },
-  cardImage: {
-    width: 94,
-    height: 94,
-    borderRadius: 10,
-    resizeMode: 'cover',
-  },
-  cardInfo: {
-    flexDirection: 'row',
-    gap: 5,
-    alignItems: 'center',
-  },
-  cardContent: {
-    gap: 10,
-    justifyContent: 'space-between',
-    paddingRight: 10,
-    paddingLeft: 15,
-    flex: 1,
-    paddingVertical: 10,
-  },
-});
+export default KeranjangItem;
 const itemVertical = StyleSheet.create({
   listCard: {
     paddingHorizontal: 12,
@@ -126,3 +91,5 @@ const itemVertical = StyleSheet.create({
     paddingVertical: 5,
   },
 });
+
+

@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Home, Profile, Keranjang, DetailBlog, PageTopUp, Search} from '../screens';
+import {Home, Profile, Keranjang, DetailBlog, PageTopUp, Search, EditPageTopUp} from '../screens';
 import {Home2, LocationDiscover, Receipt21, ProfileCircle} from 'iconsax-react-native'; 
 import { fontType, colors } from '../theme';
 
@@ -110,6 +110,18 @@ const Router = () => {
           animationTypeForReplace: 'pop',
           gestureEnabled: true,
           gestureDirection : 'horizontal',
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="EditPageTopUp"
+        component={EditPageTopUp}
+        options={{
+          headerShown: false,
+          animationEnabled: true,
+          animationTypeForReplace: 'pop',
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
           ...TransitionPresets.SlideFromRightIOS,
         }}
       />
