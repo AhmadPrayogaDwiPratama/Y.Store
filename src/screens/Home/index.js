@@ -8,7 +8,8 @@ import {SearchNormal1,Edit} from 'iconsax-react-native';
 import { useNavigation } from "@react-navigation/native";
 import {BlogList, CategoryList,cardList} from '../../../data';
 import { fontType, colors } from '../../theme';
-import { ListHorizontal, ItemSmall } from '../../components';
+import { ListHorizontal, ItemSmall ,} from '../../components';
+import ItemHome from '../../components/ItemHome';
 const ItemCategory = ({item, onPress, color}) => {
   return (
     <TouchableOpacity onPress={onPress}>
@@ -155,9 +156,11 @@ const ListBlog = () => {
         </View>
         <FlatListCategory />
         <View style={itemVertical.listCard}>
-          {cardList.map((item, index) => (
-            <ItemSmall item={item} key={index} />
-          ))}
+          {
+          cardList?.map((item, index) => (
+            <ItemHome item={item} key={index} />
+          ))
+        }
         </View>
       </Animated.View>
       <TouchableOpacity

@@ -8,58 +8,69 @@ import {formatNumber} from '../../utils/formatNumber';
 import {formatDate} from '../../utils/formatDate';
 import axios from 'axios';
 import ActionSheet from 'react-native-actions-sheet';
+import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
-const BlogDetail = ({route}) => {
-  const {blogId} = route.params;
+const DetailBlog = ({route}) => {
+  const {idTopUp} = route.params;
+  const navigation = useNavigation();
   const [iconStates, setIconStates] = useState({
     liked: {variant: 'Linear', color: colors.grey(0.6)},
     bookmarked: {variant: 'Linear', color: colors.grey(0.6)},
   });
-  const [selectedBlog, setSelectedBlog] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [selectedBlog, setSelectedBlog] = useState(null);
   const actionSheetRef = useRef(null);
-
   const openActionSheet = () => {
     actionSheetRef.current?.show();
   };
-
   const closeActionSheet = () => {
     actionSheetRef.current?.hide();
   };
-
   useEffect(() => {
-    getBlogById();
-  }, [blogId]);
-
-  const getBlogById = async () => {
+    console.log(idTopUp)
+    const subscriber = firestore()
+      .collection('YStore')
+      .doc(idTopUp)
+      .onSnapshot(documentSnapshot => {
+        const dataTopUp = documentSnapshot.data();
+        if (dataTopUp) {
+          console.log('Data TopUp ', dataTopUp);
+          setSelectedBlog(dataTopUp);
+        } else {
+          console.log(`Data with ID ${idTopUp} not found.`);
+        }
+      });
+    setLoading(false);
+    return () => subscriber();
+  }, [idTopUp]);
+  const navigateEdit = () => {
+    closeActionSheet();
+    navigation.navigate('EditPageTopUp', {idTopUp});
+  };
+  const handleDelete = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(
-        `https://656b13eadac3630cf727a5af.mockapi.io/YStore/keranjang/${blogId}`,
-      );
-      setSelectedBlog(response.data);
-      setLoading(false);
+      await firestore()
+        .collection('YStore')
+        .doc(idTopUp)
+        .delete()
+        .then(() => {
+          console.log('deleted!');
+        });
+      if (selectedBlog?.image) {
+        const imageRef = storage().refFromURL(selectedBlog?.image);
+        await imageRef.delete();
+      }
+      console.log('deleted!');
+      closeActionSheet();
+      setSelectedBlog(null);
+      setLoading(false)
+      navigation.navigate('Keranjang');
     } catch (error) {
       console.error(error);
     }
   };
-
-  const navigateEdit = () => {
-    closeActionSheet()
-    navigation.navigate('EditPageTopUp', {blogId})
-  }
-  const handleDelete = async () => {
-   await axios.delete(`https://656b13eadac3630cf727a5af.mockapi.io/YStore/keranjang/${blogId}`)
-      .then(() => {
-        closeActionSheet()
-        navigation.navigate('Keranjang');
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
-  const navigation = useNavigation();
   const scrollY = useRef(new Animated.Value(0)).current;
   const diffClampY = Animated.diffClamp(scrollY, 0, 52);
   const headerY = diffClampY.interpolate({
@@ -140,34 +151,6 @@ const BlogDetail = ({route}) => {
           <Text style={styles.content}>{selectedBlog?.content}</Text>
         </Animated.ScrollView>
       )}
-      {/* <Animated.View
-        style={[styles.bottomBar, {transform: [{translateY: bottomBarY}]}]}>
-        <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
-          <TouchableOpacity onPress={() => toggleIcon('liked')}>
-            <Like1
-              color={iconStates.liked.color}
-              variant={iconStates.liked.variant}
-              size={24}
-            />
-          </TouchableOpacity>
-          <Text style={styles.info}>
-            {formatNumber(selectedBlog?.totalLikes)}
-          </Text>
-        </View>
-        <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
-          <Message color={colors.grey(0.6)} variant="Linear" size={24} />
-          <Text style={styles.info}>
-            {formatNumber(selectedBlog?.totalComments)}
-          </Text>
-        </View>
-        <TouchableOpacity onPress={() => toggleIcon('bookmarked')}>
-          <Receipt21
-            color={iconStates.bookmarked.color}
-            variant={iconStates.bookmarked.variant}
-            size={24}
-          />
-        </TouchableOpacity>
-      </Animated.View> */}
       <ActionSheet
         ref={actionSheetRef}
         containerStyle={{
@@ -185,8 +168,7 @@ const BlogDetail = ({route}) => {
             alignItems: 'center',
             paddingVertical: 15,
           }}
-          onPress={navigateEdit}
-          >
+          onPress={navigateEdit}>
           <Text
             style={{
               fontFamily: fontType['Pjs-Medium'],
@@ -233,7 +215,7 @@ const BlogDetail = ({route}) => {
   );
 };
 
-export default BlogDetail;
+export default DetailBlog;
 
 const styles = StyleSheet.create({
   container: {

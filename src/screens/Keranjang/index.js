@@ -15,7 +15,7 @@
 
 import {ScrollView, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, RefreshControl,Image} from 'react-native';
 import {Edit, Setting2} from 'iconsax-react-native';
-import React, { useState, useCallback} from 'react';
+import React, { useState, useCallback,useEffect} from 'react';
 import FastImage from 'react-native-fast-image';
 import {ItemKeranjang, ProfileData} from '../../../data';
 import {ItemSmall} from '../../components';
@@ -23,7 +23,7 @@ import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {fontType, colors} from '../../theme';
 import {formatNumber} from '../../utils/formatNumber';
 import axios from 'axios';
-
+import firestore from '@react-native-firebase/firestore';
 
 
 export default function Keranjang() {
@@ -36,117 +36,46 @@ export default function Keranjang() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    paddingHorizontal: 24,
-    backgroundColor : '#ED7D31',
-    borderColor: '#45474B',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 52,
-    elevation: 8,
-    paddingTop: 15,
-    paddingBottom: 4,
-    marginBottom: 20,
-  },
-  imageBanner2: {
-    backgroundColor : '#F5F7F8',
-    borderColor: '#45474B',
-    width: 390,
-    height: 330,
-    borderWidth : 2,
-    borderRadius: 10,
-    marginTop: 10,
-    fontFamily: fontType['Pjs-ExtraBold'],
-  },
-imageBanner1: {
-    backgroundColor : '#F5F7F8',
-    borderColor: '#45474B',
-    width: 350,
-    height: 40,
-    marginLeft : 10,
-    borderWidth : 2,
-    borderRadius: 10,
-    marginTop: 10,
-    fontFamily: fontType['Pjs-ExtraBold'],
-  },
-imageBanner3: {
-    backgroundColor : '#ED7D31',
-    width: 100,
-    height: 40,
-    marginLeft : 270,
-    borderWidth : 2,
-    borderRadius: 10,
-    marginTop: 270,
-    fontFamily: fontType['Pjs-ExtraBold'],
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: fontType['Pjs-ExtraBold'],
-    color: colors.black(),
-  },
-  listCategory: {
-    paddingVertical: 10,
-  },
-  listBlog: {
-    paddingVertical: 10,
-    gap: 10,
-  },
-});
-const category = StyleSheet.create({
-  item: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 25,
-    alignItems: 'center',
-    backgroundColor: colors.grey(0.08),
-    marginHorizontal: 5,
-  },
-  title: {
-    fontFamily: fontType['Pjs-SemiBold'],
-    fontSize: 14,
-    lineHeight: 18,
-    color: colors.grey(),
-  },
-});
-
-
 const ListBlog = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [dataTopUp, setdataTopUp] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const getdataTopUp = async () => {
-    try {
-      const response = await axios.get(
-        'https://656b13eadac3630cf727a5af.mockapi.io/YStore/keranjang',
-      );
-      setdataTopUp(response.data);
-      setLoading(false)
-    } catch (error) {
-        console.error(error);
-    }
-  };
+  useEffect(() => {
+    const subscriber = firestore()
+      .collection('YStore')
+      .onSnapshot(querySnapshot => {
+        const carts = [];
+        querySnapshot.forEach(documentSnapshot => {
+          carts.push({
+            ...documentSnapshot.data(),
+            id: documentSnapshot.id,
+          });
+        });
+        setdataTopUp(carts);
+        setLoading(false);
+      });
+    return () => subscriber();
+  }, []);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
-      getdataTopUp()
+      firestore()
+        .collection('YStore')
+        .onSnapshot(querySnapshot => {
+          const carts = [];
+          querySnapshot.forEach(documentSnapshot => {
+            carts.push({
+              ...documentSnapshot.data(),
+              id: documentSnapshot.id,
+            });
+          });
+          setdataTopUp(carts);
+        });
       setRefreshing(false);
     }, 1500);
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      getdataTopUp();
-    }, [])
-  );
   return (
     <View style={styles.container}>
       <ScrollView
@@ -158,11 +87,6 @@ const ListBlog = () => {
         }} refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
-          {/* <View style={{flexDirection: 'row', gap: 20}}>
-            <View style={{alignItems: 'center', gap: 5}}>
-              <Text style={ItemKeranjang.sum}>{ItemKeranjang.blogPosted}</Text>
-            </View>
-        </View> */}
         <View style={{paddingVertical: 10, gap: 10}}>
           {loading ? (
             <ActivityIndicator size={'large'} color={colors.blue()} />
@@ -179,72 +103,6 @@ const ListBlog = () => {
     </View>
   );
 };
-  // return (
-  //       <View>
-  //         <Text
-  //           style={{
-  //             ...styles.title,
-  //             marginLeft: 10,
-  //             marginTop: 10,
-  //             color: colors.black(),
-  //           }}>
-  //           Pilih 
-  //         </Text>
-  //       <View style = {styles.imageBanner2}>
-  //       <Image
-  //             style={itemVertical.cardImage}
-  //             source={{
-  //               uri:  'https://i.ytimg.com/vi/Q2CHzEjYT4k/maxresdefault.jpg' 
-  //           }}
-  //           />
-  //             <Text
-  //           style={{
-  //             marginLeft: 120,
-  //             bottom :70,
-  //             fontSize : 25,
-  //             color: colors.black(),
-  //           }}>
-  //           125 Points
-  //         </Text>
-  //         <Text
-  //           style={{
-  //             marginLeft: 123,
-  //             bottom :70,
-  //             fontSize : 15,
-  //             color: colors.black(),
-  //           }}>
-  //           Valorant
-  //         </Text>
-  //                 <Text style={itemHorizontal.cardText}>
-  //                 Riot iD
-  //                 </Text>
-
-  //                 <Text style={itemHorizontal.cardTitle}>
-  //                 PRX Pr1me#Raizl
-  //                 </Text>
-
-  //                 <Text style={itemHorizontal.cardTitle}>
-  //                 Catatan Untuk Penjual (Opsional)
-  //                 </Text>
-
-  //                 <View style = {styles.imageBanner1}>
-  //                 </View>    
-
-  //                 <Text style={itemHorizontal.TextTotal}>
-  //               Total Pembelian = Rp 15.900
-  //                 </Text> 
-  //                 <View style = {styles.imageBanner3}>
-  //                   <Text style = {{
-  //                       textAlign : 'center',
-  //                        fontSize : 25,
-  //                        color: colors.black(),
-  //                   }}
-  //                   >Beli</Text>
-  //                 </View>         
-  //       </View>
-  //       </View>
-  // );
-
   const coba = StyleSheet.create({
     container: {
       flex: 1,
@@ -371,7 +229,84 @@ const itemVertical = StyleSheet.create({
     paddingVertical: 5,
   },
 });
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    paddingHorizontal: 24,
+    backgroundColor : '#ED7D31',
+    borderColor: '#45474B',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 52,
+    elevation: 8,
+    paddingTop: 15,
+    paddingBottom: 4,
+    marginBottom: 20,
+  },
+  imageBanner2: {
+    backgroundColor : '#F5F7F8',
+    borderColor: '#45474B',
+    width: 390,
+    height: 330,
+    borderWidth : 2,
+    borderRadius: 10,
+    marginTop: 10,
+    fontFamily: fontType['Pjs-ExtraBold'],
+  },
+imageBanner1: {
+    backgroundColor : '#F5F7F8',
+    borderColor: '#45474B',
+    width: 350,
+    height: 40,
+    marginLeft : 10,
+    borderWidth : 2,
+    borderRadius: 10,
+    marginTop: 10,
+    fontFamily: fontType['Pjs-ExtraBold'],
+  },
+imageBanner3: {
+    backgroundColor : '#ED7D31',
+    width: 100,
+    height: 40,
+    marginLeft : 270,
+    borderWidth : 2,
+    borderRadius: 10,
+    marginTop: 270,
+    fontFamily: fontType['Pjs-ExtraBold'],
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: fontType['Pjs-ExtraBold'],
+    color: colors.black(),
+  },
+  listCategory: {
+    paddingVertical: 10,
+  },
+  listBlog: {
+    paddingVertical: 10,
+    gap: 10,
+  },
+});
+const category = StyleSheet.create({
+  item: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 25,
+    alignItems: 'center',
+    backgroundColor: colors.grey(0.08),
+    marginHorizontal: 5,
+  },
+  title: {
+    fontFamily: fontType['Pjs-SemiBold'],
+    fontSize: 14,
+    lineHeight: 18,
+    color: colors.grey(),
+  },
+});
 const itemHorizontal = StyleSheet.create({
   cardItem: {
     width: 280,

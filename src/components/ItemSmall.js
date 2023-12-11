@@ -8,7 +8,7 @@ import {formatDate} from '../utils/formatDate';
 const navigation = useNavigation();
 const ItemSmall = ({item}) => {
   return (
-    <TouchableOpacity style={styles.cardItem} onPress={() => navigation.navigate('DetailBlog', {blogId: item.id})}>
+    <TouchableOpacity style={styles.cardItem} onPress={() => navigation.navigate('DetailBlog', {idTopUp: item.id})}>
      <FastImage
         style={styles.cardImage}
         source={{

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "620502325349",
+    "project_id": "ystoreapp-ea2af",
+    "storage_bucket": "ystoreapp-ea2af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:620502325349:android:1da9eed27c37f96181ce8c",
+        "android_client_info": {
+          "package_name": "com.ystore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwyH4LIoYY714TVhWUe08pIHCTSuuOhWs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

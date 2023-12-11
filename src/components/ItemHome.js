@@ -6,11 +6,11 @@ import {useNavigation} from '@react-navigation/native';
 import {fontType, colors} from '../theme';
 import {formatDate} from '../utils/formatDate';
 const navigation = useNavigation();
-const KeranjangItem = ({item}) => {
+const ItemHome = ({item}) => {
   return (
     <TouchableOpacity
       style={styles.cardItem}
-      onPress={() => navigation.navigate('DetalBlog', {blogId: item.id})}>
+      onPress={() => navigation.navigate('DetailBlog', {idTopUp: item.id})}>
       <FastImage
         style={styles.cardImage}
         source={{
@@ -30,21 +30,14 @@ const KeranjangItem = ({item}) => {
             <Text style={styles.cardCategory}>{item.category?.name}</Text>
             <Text style={styles.cardTitle}>{item?.title}</Text>
           </View>
-          <Receipt21 color={colors.grey(0.6)} variant="Linear" size={20} />
-        </View>
-        <View style={styles.cardInfo}>
-          <Clock size={10} variant="Linear" color={colors.grey(0.6)} />
-          <Text style={styles.cardText}>{formatDate(item?.createdAt)}</Text>
-          <Message size={10} variant="Linear" color={colors.grey(0.6)} />
-          <Text style={styles.cardText}>{item?.totalComments}</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
 };
 
-export default KeranjangItem;
-const itemVertical = StyleSheet.create({
+export default ItemHome;
+const styles = StyleSheet.create({
   listCard: {
     paddingHorizontal: 12,
     paddingVertical: 10,
