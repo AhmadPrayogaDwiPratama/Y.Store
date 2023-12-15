@@ -8,6 +8,7 @@ import FastImage from 'react-native-fast-image';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 const PageTopUp = () => {
   const dataCategory = [
@@ -46,6 +47,7 @@ const PageTopUp = () => {
         image: url,
         content: DataTopUp.content,
         createdAt: new Date(),
+        authorId
       });
       setLoading(false);
       console.log('Top Up ditambahkan');
@@ -68,6 +70,7 @@ const PageTopUp = () => {
         console.log(error);
       });
   };
+  const authorId = auth().currentUser.uid;
   return (
     <View style={styles.container}>
     <View style={styles.header}>

@@ -1,8 +1,8 @@
 import React from 'react';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Home, Profile, Keranjang, DetailBlog, PageTopUp, Search, EditPageTopUp} from '../screens';
-import {Home2, LocationDiscover, Receipt21, ProfileCircle} from 'iconsax-react-native'; 
+import {Home, Profile, Keranjang, DetailBlog, PageTopUp, Search, EditPageTopUp, SplashScreen, Register,Login} from '../screens';
+import {Home2, LocationDiscover, Receipt21, ProfileCircle, } from 'iconsax-react-native'; 
 import { fontType, colors } from '../theme';
 
 const Tab = createBottomTabNavigator();
@@ -75,7 +75,22 @@ function MainApp() {
 }
 const Router = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="SplashScreen">
+      <Stack.Screen
+        name="SplashScreen"
+        component={SplashScreen}
+        options={{headerShown: false}}
+      />
+<Stack.Screen
+        name="Register"
+        component={Register}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
+      />
       <Stack.Screen
         name="MainApp"
         component={MainApp}

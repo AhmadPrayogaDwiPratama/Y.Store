@@ -1,30 +1,119 @@
-import {ScrollView, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {AlignLeft, Setting2} from 'iconsax-react-native';
-import React from 'react';
+import {ScrollView, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, RefreshControl} from 'react-native';
+import {Edit, Setting2} from 'iconsax-react-native';
+import React, {useEffect, useState, useCallback, useRef} from 'react';
 import FastImage from 'react-native-fast-image';
-import {ProfileData, BlogList} from '../../../data';
-import {ItemSmall, itemHorizontal} from '../../components';
-import { fontType, colors } from '../../theme';
+import {ItemSmall} from '../../components';
+import {useNavigation} from '@react-navigation/native';
+import {fontType, colors} from '../../theme';
+import firestore from '@react-native-firebase/firestore';
+import {formatNumber} from '../../utils/formatNumber';
+import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {formatDate} from '../../utils/formatDate';
+import ActionSheet from 'react-native-actions-sheet';
+import { ProfileData } from '../../../data';
 
-const formatNumber = number => {
-  if (number >= 1000000000) {
-    return (number / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-  }
-  if (number >= 1000000) {
-    return (number / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-  }
-  if (number >= 1000) {
-    return (number / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-  }
-  return number.toString();
-};
-
-const data = BlogList.slice(5);
 const Profile = () => {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [DataTopUp, setDataTopUp] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const actionSheetRef = useRef(null);
+  const openActionSheet = () => {
+    actionSheetRef.current?.show();
+  };
+  const closeActionSheet = () => {
+    actionSheetRef.current?.hide();
+  };
+  useEffect(() => {
+    const user = auth().currentUser;
+    const fetchBlogData = () => {
+      try {
+        if (user) {
+          const userId = user.uid;
+          const ProfileCollection = firestore().collection('blog');
+          const query = ProfileCollection.where('authorId', '==', userId);
+          const unsubscribeBlog = query.onSnapshot(querySnapshot => {
+            const profile = querySnapshot.docs.map(doc => ({
+              ...doc.data(),
+              id: doc.id,
+            }));
+            setDataTopUp(profile);
+            setLoading(false);
+          });
+
+          return () => {
+            unsubscribeBlog();
+          };
+        }
+      } catch (error) {
+        console.error('Error fetching blog data:', error);
+      }
+    };
+
+    const fetchProfileData = () => {
+      try {
+        const user = auth().currentUser;
+        if (user) {
+          const userId = user.uid;
+          const userRef = firestore().collection('users').doc(userId);
+
+          const unsubscribeProfile = userRef.onSnapshot(doc => {
+            if (doc.exists) {
+              const userData = doc.data();
+              setProfileData(userData);
+              fetchBlogData();
+            } else {
+              console.error('Dokumen pengguna tidak ditemukan.');
+            }
+          });
+
+          return () => {
+            unsubscribeProfile();
+          };
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
+    };
+    fetchBlogData();
+    fetchProfileData();
+  }, []);
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      firestore()
+        .collection('YStore')
+        .onSnapshot(querySnapshot => {
+          const profile = [];
+          querySnapshot.forEach(documentSnapshot => {
+            profile.push({
+              ...documentSnapshot.data(),
+              id: documentSnapshot.id,
+            });
+          });
+          setBlogData(blogs);
+        });
+      setRefreshing(false);
+    }, 1500);
+  }, []);
+  const handleLogout = async () => {
+    try {
+      closeActionSheet();
+      await auth().signOut();
+      await AsyncStorage.removeItem('userData');
+      navigation.replace('Login');
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Setting2 color={colors.black()} variant="Linear" size={24} />
+        <TouchableOpacity onPress={openActionSheet}>
+          <Setting2 color={colors.black()} variant="Linear" size={24} />
+        </TouchableOpacity>
       </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -32,9 +121,12 @@ const Profile = () => {
           paddingHorizontal: 24,
           gap: 10,
           paddingVertical: 20,
-        }}>
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
         <View style={{gap: 15, alignItems: 'center'}}>
-          <FastImage
+        <FastImage
             style={profile.pic}
             source={{
               uri: ProfileData.profilePict,
@@ -44,9 +136,9 @@ const Profile = () => {
             resizeMode={FastImage.resizeMode.cover}
           />
           <View style={{gap: 5, alignItems: 'center'}}>
-            <Text style={profile.name}>{ProfileData.name}</Text>
+            <Text style={profile.name}>{profileData?.fullName}</Text>
             <Text style={profile.info}>
-              Hi, Prayoga
+              Member since {formatDate(profileData?.createdAt)}
             </Text>
           </View>
           <View style = {styles.LayoutDompet}>
@@ -59,24 +151,65 @@ const Profile = () => {
             </View>
           </View>
         </View>
-        </View>   
-        <View style={{paddingVertical: 10, gap:10}}>
-          {data.map((item, index) => (
-            <ItemSmall item={item} key={index} />
-          ))}
         </View>
-        {/* <Text style={{...styles.title, color: colors.black()}}>Riwayat Pembelian</Text>
-        <Text style={{...styles.Menunggu, color: colors.black()}}>Menunggu Pembayaran</Text> */}
       </ScrollView>
+      <ActionSheet
+        ref={actionSheetRef}
+        containerStyle={{
+          borderTopLeftRadius: 25,
+          borderTopRightRadius: 25,
+        }}
+        indicatorStyle={{
+          width: 100,
+        }}
+        gestureEnabled={true}
+        defaultOverlayOpacity={0.3}>
+        <TouchableOpacity
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingVertical: 15,
+          }}
+          onPress={handleLogout}>
+          <Text
+            style={{
+              fontFamily: fontType['Pjs-Medium'],
+              color: colors.black(),
+              fontSize: 18,
+            }}>
+            Log out
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingVertical: 15,
+          }}
+          onPress={closeActionSheet}>
+          <Text
+            style={{
+              fontFamily: fontType['Pjs-Medium'],
+              color: 'red',
+              fontSize: 18,
+            }}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+      </ActionSheet>
     </View>
   );
 };
-
 export default Profile;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white(),
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   header: {
     paddingHorizontal: 24,
@@ -88,46 +221,26 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
-  LayoutDompet: {
-    backgroundColor : '#F5F7F8',
-    borderColor: '#45474B',
-    width: 150,
-    height: 90,
-    marginLeft : 10,
-    borderWidth : 2,
-    borderRadius: 10,
-    marginTop: 10,
-    fontFamily: fontType['Pjs-ExtraBold'],
-  },
-HeaderBiru: {
-  backgroundColor : '#F5F7F8',
-  borderColor: '#45474B',
-  width: 350,
-  height: 90,
-  marginLeft : 10,
-  borderWidth : 2,
-  borderRadius: 10,
-  marginTop: 10,
-  fontFamily: fontType['Pjs-ExtraBold'],
-  },
   title: {
     fontSize: 20,
     fontFamily: fontType['Pjs-ExtraBold'],
     color: colors.black(),
   },
-  Riwayat: {
-    fontFamily: fontType['Pjs-Bold'],
-    fontSize: 14,
-    color: colors.black(),
-    marginLeft : 10,
-    marginTop : 10,
-  },
-  Menunggu : {
-    fontFamily: fontType['Pjs-Bold'],
-    fontSize: 13,
-    color: colors.black(),
-    marginLeft : 10,
-    marginTop : 10,
+  floatingButton: {
+    backgroundColor: colors.blue(),
+    padding: 15,
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    borderRadius: 10,
+    shadowColor: colors.blue(),
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
 });
 const profile = StyleSheet.create({
@@ -135,10 +248,9 @@ const profile = StyleSheet.create({
   name: {
     color: colors.black(),
     fontSize: 20,
-    fontFamily: fontType['Pjs-Bold'],
-    textTransform:'capitalize'
+    fontFamily: fontType['Pjs-ExtraBold'],
+    textTransform: 'capitalize',
   },
-
   info: {
     fontSize: 12,
     fontFamily: fontType['Pjs-Regular'],
@@ -146,17 +258,13 @@ const profile = StyleSheet.create({
   },
   sum: {
     fontSize: 16,
-    marginLeft : 27,
-    marginTop : 20,
     fontFamily: fontType['Pjs-SemiBold'],
     color: colors.black(),
   },
   tag: {
     fontSize: 14,
-    marginLeft : 40,
-    marginTop : 10,
     fontFamily: fontType['Pjs-Regular'],
-    color: colors.black(0.5),
+    color: colors.grey(0.5),
   },
   buttonEdit: {
     paddingHorizontal: 16,
@@ -170,3 +278,4 @@ const profile = StyleSheet.create({
     color: colors.black(),
   },
 });
+
